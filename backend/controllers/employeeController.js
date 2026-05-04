@@ -1,59 +1,95 @@
-const employeeStore = require('../models/employeeStore');
+const Employee = require('../models/Employee');
 
 // GET /api/employees
-const getAllEmployees = (req, res) => {
-  const employees = employeeStore.getAll();
-  res.json(employees);
+const getAllEmployees = async (req, res, next) => {
+  try {
+    const employees = await Employee.find().sort({ createdAt: -1 });
+    res.json(employees);
+  } catch (err) {
+    next(err);
+  }
 };
 
 // GET /api/employees/:id
-const getEmployeeById = (req, res) => {
-  const id = parseInt(req.params.id);
-  const employee = employeeStore.getById(id);
+const getEmployeeById = async (req, res, next) => {
+  try {
+    const employee = await Employee.findById(req.params.id);
 
-  if (!employee) {
-    return res.status(404).json({ error: 'Employee not found.' });
+    if (!employee) {
+      return res.status(404).json({ error: 'Employee not found.' });
+    }
+
+    res.json(employee);
+  } catch (err) {
+    next(err);
   }
-
-  res.json(employee);
 };
 
 // POST /api/employees
-const createEmployee = (req, res) => {
-  const { name, department, role, email, status } = req.body;
+const createEmployee = async (req, res, next) => {
+  try {
+    const { name, department, role, email, status, phone, salary } = req.body;
 
-  if (!name || !department || !role || !email) {
-    return res.status(400).json({ error: 'Name, department, role and email are required.' });
+    if (!name || !department || !role || !email) {
+      return res.status(400).json({ error: 'Name, department, role and email are required.' });
+    }
+
+    const newEmployee = await Employee.create({ 
+      name, 
+      department, 
+      role, 
+      email, 
+      status,
+      phone,
+      salary 
+    });
+
+    res.status(201).json(newEmployee);
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'An employee with this email already exists.' });
+    }
+    next(err);
   }
-
-  const newEmployee = employeeStore.create({ name, department, role, email, status });
-  res.status(201).json(newEmployee);
 };
 
 // PUT /api/employees/:id
-const updateEmployee = (req, res) => {
-  const id = parseInt(req.params.id);
-  const { name, department, role, email, status } = req.body;
+const updateEmployee = async (req, res, next) => {
+  try {
+    const { name, department, role, email, status, phone, salary } = req.body;
 
-  const updated = employeeStore.update(id, { name, department, role, email, status });
+    const updated = await Employee.findByIdAndUpdate(
+      req.params.id,
+      { name, department, role, email, status, phone, salary },
+      { new: true, runValidators: true }
+    );
 
-  if (!updated) {
-    return res.status(404).json({ error: 'Employee not found.' });
+    if (!updated) {
+      return res.status(404).json({ error: 'Employee not found.' });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'An employee with this email already exists.' });
+    }
+    next(err);
   }
-
-  res.json(updated);
 };
 
 // DELETE /api/employees/:id
-const deleteEmployee = (req, res) => {
-  const id = parseInt(req.params.id);
-  const deleted = employeeStore.remove(id);
+const deleteEmployee = async (req, res, next) => {
+  try {
+    const deleted = await Employee.findByIdAndDelete(req.params.id);
 
-  if (!deleted) {
-    return res.status(404).json({ error: 'Employee not found.' });
+    if (!deleted) {
+      return res.status(404).json({ error: 'Employee not found.' });
+    }
+
+    res.json({ message: 'Employee deleted successfully.' });
+  } catch (err) {
+    next(err);
   }
-
-  res.json({ message: 'Employee deleted successfully.' });
 };
 
 module.exports = {
