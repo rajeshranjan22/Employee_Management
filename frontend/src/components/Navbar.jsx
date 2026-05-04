@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const Navbar = () => {
+  const { user, logout } = useContext(AuthContext);
+
   return (
     <div style={{
       height: '70px',
@@ -42,7 +46,11 @@ const Navbar = () => {
         <NotificationsIcon style={{ color: 'var(--text-muted)', cursor: 'pointer' }} className="hover-scale" />
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} className="hover-scale">
           <AccountCircleIcon style={{ color: 'var(--accent-color)' }} fontSize="large" />
-          <span style={{ fontWeight: '500' }}>Admin User</span>
+          <span style={{ fontWeight: '500' }}>{user?.name || 'Admin'}</span>
+        </div>
+        <div onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'var(--danger-color)' }} className="hover-scale">
+          <LogoutIcon />
+          <span style={{ fontWeight: '500' }}>Logout</span>
         </div>
       </div>
     </div>
