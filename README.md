@@ -69,7 +69,6 @@ To populate the database with professional sample data (Admin account & 5 Employ
 cd backend
 npm run seed
 ```
-*Default Admin Credentials:* `admin@example.com` / `admin123`
 
 ### 5. Running the Application
 
@@ -112,8 +111,3 @@ Employee_Management/
 - Passwords are never stored in plain text (hashed via bcrypt).
 - API routes are protected by a JWT middleware.
 - Client-side routes are protected by a `ProtectedRoute` component.
-
----
-
-## 📜 License
-Developed by **Brajesh Sharma**. Free to use for educational purposes.
