@@ -11,15 +11,60 @@ const Employee = require('../models/Employee');
 const User = require('../models/User');
 
 const sampleEmployees = [
-  { name: 'John Doe',       department: 'Engineering', role: 'Software Engineer',    email: 'john@example.com',    status: 'Active'   },
-  { name: 'Jane Smith',     department: 'Design',      role: 'UX Designer',          email: 'jane@example.com',    status: 'Active'   },
-  { name: 'Robert Johnson', department: 'HR',          role: 'HR Manager',           email: 'robert@example.com',  status: 'On Leave' },
-  { name: 'Emily Davis',    department: 'Marketing',   role: 'Marketing Specialist', email: 'emily@example.com',   status: 'Active'   },
-  { name: 'Michael Wilson', department: 'Engineering', role: 'DevOps Engineer',      email: 'michael@example.com', status: 'Inactive' },
+  { 
+    name: 'John Doe', 
+    department: 'Engineering', 
+    role: 'Software Engineer', 
+    email: 'john@example.com', 
+    status: 'Active',
+    salary: 85000,
+    joiningDate: '2023-01-15',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop'
+  },
+  { 
+    name: 'Jane Smith', 
+    department: 'Design', 
+    role: 'UX Designer', 
+    email: 'jane@example.com', 
+    status: 'Active',
+    salary: 78000,
+    joiningDate: '2023-03-10',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop'
+  },
+  { 
+    name: 'Robert Johnson', 
+    department: 'HR', 
+    role: 'HR Manager', 
+    email: 'robert@example.com', 
+    status: 'On Leave',
+    salary: 72000,
+    joiningDate: '2022-11-20',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop'
+  },
+  { 
+    name: 'Emily Davis', 
+    department: 'Marketing', 
+    role: 'Marketing Specialist', 
+    email: 'emily@example.com', 
+    status: 'Active',
+    salary: 65000,
+    joiningDate: '2024-02-05',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop'
+  },
+  { 
+    name: 'Michael Wilson', 
+    department: 'Engineering', 
+    role: 'DevOps Engineer', 
+    email: 'michael@example.com', 
+    status: 'Inactive',
+    salary: 92000,
+    joiningDate: '2023-06-15',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop'
+  },
 ];
 
 const sampleAdmin = {
-  name: 'Admin User',
+  name: 'Honey Gupta',
   email: 'admin@example.com',
   password: 'admin123',
   role: 'admin',

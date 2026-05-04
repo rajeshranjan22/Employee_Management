@@ -1,13 +1,15 @@
 import React, { useContext } from 'react';
 import { EmployeeContext } from '../context/EmployeeContext';
+import { AuthContext } from '../context/AuthContext';
 import { DataGrid } from '@mui/x-data-grid';
-import { IconButton, CircularProgress, Alert } from '@mui/material';
+import { IconButton, CircularProgress, Alert, Avatar } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
 
 const EmployeeList = () => {
-  const { employees, loading, error, deleteEmployee } = useContext(EmployeeContext);
+  const { employees, loading, error, deleteEmployee, searchTerm } = useContext(EmployeeContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleEdit = (id) => {
@@ -18,31 +20,79 @@ const EmployeeList = () => {
     await deleteEmployee(id);
   };
 
+  const filteredEmployees = employees.filter(emp => 
+    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    emp.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'name', headerName: 'Name', width: 200, flex: 1 },
-    { field: 'department', headerName: 'Department', width: 180 },
-    { field: 'role', headerName: 'Role', width: 200, flex: 1 },
-    { field: 'email', headerName: 'Email', width: 250, flex: 1 },
+    { 
+      field: 'avatar', 
+      headerName: '', 
+      width: 60,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <Avatar 
+            src={params.row.avatar} 
+            alt={params.row.name}
+            style={{ width: 35, height: 35, background: 'var(--accent-color)', fontSize: '0.9rem' }}
+          >
+            {params.row.name?.charAt(0) || '?'}
+          </Avatar>
+        </div>
+      )
+    },
+    { field: 'name', headerName: 'Name', width: 180, flex: 1 },
+    { field: 'department', headerName: 'Department', width: 140 },
+    { field: 'role', headerName: 'Role', width: 160, flex: 1 },
+    { 
+      field: 'salary', 
+      headerName: 'Salary', 
+      width: 120,
+      valueFormatter: (value) => value ? `$${value.toLocaleString()}` : '-'
+    },
+    { 
+      field: 'joiningDate', 
+      headerName: 'Joined', 
+      width: 130,
+      valueFormatter: (value) => value ? new Date(value).toLocaleDateString() : '-'
+    },
     {
       field: 'status',
       headerName: 'Status',
-      width: 130,
+      width: 120,
       renderCell: (params) => {
-        let color = params.value === 'Active' ? 'var(--success-color)' : 
-                    params.value === 'On Leave' ? 'var(--warning-color)' : 'var(--danger-color)';
+        let color = params.value === 'Active' ? '#10b981' : 
+                    params.value === 'On Leave' ? '#f59e0b' : '#ef4444';
         return (
-          <span style={{
-            background: `rgba(255, 255, 255, 0.1)`,
-            color: color,
-            padding: '4px 12px',
-            borderRadius: '20px',
-            fontSize: '0.85rem',
-            fontWeight: '600',
-            border: `1px solid ${color}`
-          }}>
-            {params.value}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: `${color}15`, // Very light transparent background
+              color: color,
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: '700',
+              border: `1px solid ${color}30`, // Semi-transparent border
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              <span style={{ 
+                width: '6px', 
+                height: '6px', 
+                borderRadius: '50%', 
+                backgroundColor: color,
+                boxShadow: `0 0 8px ${color}` // Soft glow effect
+              }}></span>
+              {params.value}
+            </span>
+          </div>
         );
       }
     },
@@ -59,13 +109,15 @@ const EmployeeList = () => {
           >
             <EditIcon fontSize="small" />
           </IconButton>
-          <IconButton 
-            size="small" 
-            style={{ color: 'var(--danger-color)' }}
-            onClick={() => handleDelete(params.row.id)}
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+          {user?.role === 'admin' && (
+            <IconButton 
+              size="small" 
+              style={{ color: 'var(--danger-color)' }}
+              onClick={() => handleDelete(params.row.id)}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
         </div>
       ),
     },
@@ -85,7 +137,7 @@ const EmployeeList = () => {
       {error && <Alert severity="error" style={{ marginBottom: '1rem' }}>{error}</Alert>}
       <div style={{ height: '100%', width: '100%' }} className="glass-panel">
         <DataGrid
-          rows={employees}
+          rows={filteredEmployees}
           columns={columns}
           pageSizeOptions={[5, 10, 20]}
           initialState={{

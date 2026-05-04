@@ -18,6 +18,10 @@ const EmployeeForm = () => {
     department: '',
     role: '',
     email: '',
+    phone: '',
+    salary: '',
+    joiningDate: new Date().toISOString().split('T')[0],
+    avatar: '',
     status: 'Active'
   });
 
@@ -25,7 +29,10 @@ const EmployeeForm = () => {
     if (isEditing) {
       const employeeToEdit = employees.find(emp => emp.id === id);
       if (employeeToEdit) {
-        setFormData(employeeToEdit);
+        setFormData({
+          ...employeeToEdit,
+          joiningDate: employeeToEdit.joiningDate ? new Date(employeeToEdit.joiningDate).toISOString().split('T')[0] : ''
+        });
       }
     }
   }, [id, employees, isEditing]);
@@ -95,21 +102,63 @@ const EmployeeForm = () => {
 
         <TextField
           fullWidth
-          label="Department"
-          name="department"
-          value={formData.department}
+          label="Phone Number"
+          name="phone"
+          value={formData.phone}
           onChange={handleChange}
-          required
           sx={inputStyles}
         />
 
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <TextField
+            fullWidth
+            label="Department"
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            required
+            sx={inputStyles}
+          />
+          <TextField
+            fullWidth
+            label="Role"
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            required
+            sx={inputStyles}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <TextField
+            fullWidth
+            label="Salary"
+            name="salary"
+            type="number"
+            value={formData.salary}
+            onChange={handleChange}
+            sx={inputStyles}
+          />
+          <TextField
+            fullWidth
+            label="Joining Date"
+            name="joiningDate"
+            type="date"
+            value={formData.joiningDate}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            sx={inputStyles}
+          />
+        </div>
+
         <TextField
           fullWidth
-          label="Role"
-          name="role"
-          value={formData.role}
+          label="Avatar URL (Optional)"
+          name="avatar"
+          value={formData.avatar}
           onChange={handleChange}
-          required
+          placeholder="https://example.com/photo.jpg"
           sx={inputStyles}
         />
 

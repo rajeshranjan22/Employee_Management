@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { EmployeeContext } from '../context/EmployeeContext';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -7,6 +8,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
+  const { searchTerm, setSearchTerm } = useContext(EmployeeContext);
 
   return (
     <div style={{
@@ -32,6 +34,8 @@ const Navbar = () => {
         <input 
           type="text" 
           placeholder="Search employees..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           style={{
             background: 'transparent',
             border: 'none',

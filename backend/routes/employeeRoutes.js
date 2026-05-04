@@ -8,6 +8,7 @@ const {
   deleteEmployee,
 } = require('../controllers/employeeController');
 const { authenticateToken } = require('../middleware/authMiddleware');
+const { authorize } = require('../middleware/roleMiddleware');
 
 // All employee routes are protected — require valid JWT
 router.use(authenticateToken);
@@ -24,7 +25,7 @@ router.post('/', createEmployee);
 // PUT    /api/employees/:id
 router.put('/:id', updateEmployee);
 
-// DELETE /api/employees/:id
-router.delete('/:id', deleteEmployee);
+// DELETE /api/employees/:id — Admin only
+router.delete('/:id', authorize('admin'), deleteEmployee);
 
 module.exports = router;

@@ -20,7 +20,7 @@ const register = async (req, res, next) => {
 
     res.status(201).json({ 
       message: 'User registered successfully!',
-      user: { id: newUser._id, name: newUser.name, email: newUser.email }
+      user: { id: newUser._id, name: newUser.name, email: newUser.email, role: newUser.role }
     });
   } catch (err) {
     next(err);
@@ -44,12 +44,12 @@ const login = async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, name: user.name },
+      { id: user._id, email: user.email, name: user.name, role: user.role },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
   } catch (err) {
     next(err);
   }

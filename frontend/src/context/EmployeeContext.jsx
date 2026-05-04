@@ -16,6 +16,7 @@ export const EmployeeProvider = ({ children }) => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // ── Fetch all employees from backend ─────────────────────────────────────────
   const fetchEmployees = useCallback(async () => {
@@ -111,7 +112,17 @@ export const EmployeeProvider = ({ children }) => {
 
   return (
     <EmployeeContext.Provider
-      value={{ employees, loading, error, addEmployee, updateEmployee, deleteEmployee, fetchEmployees }}
+      value={{ 
+        employees, 
+        loading, 
+        error, 
+        addEmployee, 
+        updateEmployee, 
+        deleteEmployee, 
+        fetchEmployees,
+        searchTerm,
+        setSearchTerm
+      }}
     >
       {children}
     </EmployeeContext.Provider>
