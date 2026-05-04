@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { EmployeeContext } from '../context/EmployeeContext';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Alert } from '@mui/material';
 import { TextField, Button, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
 const EmployeeForm = () => {
@@ -9,6 +10,8 @@ const EmployeeForm = () => {
   const { id } = useParams();
   
   const isEditing = Boolean(id);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -32,12 +35,17 @@ const EmployeeForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      updateEmployee(formData);
-    } else {
-      addEmployee(formData);
+    setSubmitError(null);
+    setSubmitting(true);
+    const result = isEditing
+      ? await updateEmployee(formData)
+      : await addEmployee(formData);
+    setSubmitting(false);
+    if (result && result.success === false) {
+      setSubmitError(result.error || 'Operation failed. Please try again.');
+      return;
     }
     navigate('/employees');
   };
@@ -56,6 +64,9 @@ const EmployeeForm = () => {
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+      {submitError && (
+        <Alert severity="error" style={{ marginBottom: '1rem' }}>{submitError}</Alert>
+      )}
       <h1 style={{ marginBottom: '2rem', fontSize: '2rem', fontWeight: '600' }}>
         {isEditing ? 'Edit Employee' : 'Add New Employee'}
       </h1>
@@ -129,6 +140,7 @@ const EmployeeForm = () => {
             type="submit" 
             variant="contained" 
             fullWidth
+            disabled={submitting}
             style={{ 
               background: 'var(--accent-color)', 
               color: '#fff', 
@@ -138,7 +150,7 @@ const EmployeeForm = () => {
             }}
             className="hover-scale"
           >
-            {isEditing ? 'Update Employee' : 'Save Employee'}
+            {submitting ? 'Saving...' : (isEditing ? 'Update Employee' : 'Save Employee')}
           </Button>
           <Button 
             variant="outlined" 

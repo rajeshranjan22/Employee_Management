@@ -1,32 +1,97 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 
 export const EmployeeContext = createContext();
 
-const initialEmployees = [
-  { id: 1, name: 'John Doe', department: 'Engineering', role: 'Software Engineer', email: 'john@example.com', status: 'Active' },
-  { id: 2, name: 'Jane Smith', department: 'Design', role: 'UX Designer', email: 'jane@example.com', status: 'Active' },
-  { id: 3, name: 'Robert Johnson', department: 'HR', role: 'HR Manager', email: 'robert@example.com', status: 'On Leave' },
-  { id: 4, name: 'Emily Davis', department: 'Marketing', role: 'Marketing Specialist', email: 'emily@example.com', status: 'Active' },
-  { id: 5, name: 'Michael Wilson', department: 'Engineering', role: 'DevOps Engineer', email: 'michael@example.com', status: 'Inactive' },
-];
+const API_BASE = 'http://localhost:5000/api/employees';
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
 
 export const EmployeeProvider = ({ children }) => {
-  const [employees, setEmployees] = useState(initialEmployees);
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const addEmployee = (employee) => {
-    setEmployees([...employees, { ...employee, id: employees.length + 1 }]);
+  // ── Fetch all employees from backend ─────────────────────────────────────────
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(API_BASE, { headers: getAuthHeaders() });
+      if (!res.ok) throw new Error('Failed to fetch employees.');
+      const data = await res.json();
+      setEmployees(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [fetchEmployees]);
+
+  // ── Add employee ──────────────────────────────────────────────────────────────
+  const addEmployee = async (employee) => {
+    try {
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(employee),
+      });
+      if (!res.ok) throw new Error('Failed to add employee.');
+      const newEmployee = await res.json();
+      setEmployees((prev) => [...prev, newEmployee]);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   };
 
-  const updateEmployee = (updatedEmployee) => {
-    setEmployees(employees.map(emp => emp.id === updatedEmployee.id ? updatedEmployee : emp));
+  // ── Update employee ───────────────────────────────────────────────────────────
+  const updateEmployee = async (updatedEmployee) => {
+    try {
+      const res = await fetch(`${API_BASE}/${updatedEmployee.id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updatedEmployee),
+      });
+      if (!res.ok) throw new Error('Failed to update employee.');
+      const updated = await res.json();
+      setEmployees((prev) =>
+        prev.map((emp) => (emp.id === updated.id ? updated : emp))
+      );
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   };
 
-  const deleteEmployee = (id) => {
-    setEmployees(employees.filter(emp => emp.id !== id));
+  // ── Delete employee ───────────────────────────────────────────────────────────
+  const deleteEmployee = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error('Failed to delete employee.');
+      setEmployees((prev) => prev.filter((emp) => emp.id !== id));
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
   };
 
   return (
-    <EmployeeContext.Provider value={{ employees, addEmployee, updateEmployee, deleteEmployee }}>
+    <EmployeeContext.Provider
+      value={{ employees, loading, error, addEmployee, updateEmployee, deleteEmployee, fetchEmployees }}
+    >
       {children}
     </EmployeeContext.Provider>
   );

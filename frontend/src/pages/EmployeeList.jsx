@@ -1,17 +1,21 @@
 import React, { useContext } from 'react';
 import { EmployeeContext } from '../context/EmployeeContext';
 import { DataGrid } from '@mui/x-data-grid';
-import { IconButton } from '@mui/material';
+import { IconButton, CircularProgress, Alert } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
 
 const EmployeeList = () => {
-  const { employees, deleteEmployee } = useContext(EmployeeContext);
+  const { employees, loading, error, deleteEmployee } = useContext(EmployeeContext);
   const navigate = useNavigate();
 
   const handleEdit = (id) => {
     navigate(`/edit-employee/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    await deleteEmployee(id);
   };
 
   const columns = [
@@ -58,7 +62,7 @@ const EmployeeList = () => {
           <IconButton 
             size="small" 
             style={{ color: 'var(--danger-color)' }}
-            onClick={() => deleteEmployee(params.row.id)}
+            onClick={() => handleDelete(params.row.id)}
           >
             <DeleteIcon fontSize="small" />
           </IconButton>
@@ -67,9 +71,18 @@ const EmployeeList = () => {
     },
   ];
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+        <CircularProgress style={{ color: 'var(--accent-color)' }} size={60} />
+      </div>
+    );
+  }
+
   return (
     <div style={{ height: 'calc(100vh - 150px)', width: '100%' }}>
       <h1 style={{ marginBottom: '2rem', fontSize: '2rem', fontWeight: '600' }}>Employee Directory</h1>
+      {error && <Alert severity="error" style={{ marginBottom: '1rem' }}>{error}</Alert>}
       <div style={{ height: '100%', width: '100%' }} className="glass-panel">
         <DataGrid
           rows={employees}
