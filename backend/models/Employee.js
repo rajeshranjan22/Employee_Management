@@ -68,7 +68,6 @@ const employeeSchema = new mongoose.Schema(
 
 // ── Index for faster queries ───────────────────────────────────────────────────
 employeeSchema.index({ department: 1, status: 1 });
-employeeSchema.index({ email: 1 }, { unique: true });
 
 // ── Virtual: full display label ────────────────────────────────────────────────
 employeeSchema.virtual('displayLabel').get(function () {

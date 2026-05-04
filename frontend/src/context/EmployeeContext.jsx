@@ -25,7 +25,14 @@ export const EmployeeProvider = ({ children }) => {
       const res = await fetch(API_BASE, { headers: getAuthHeaders() });
       if (!res.ok) throw new Error('Failed to fetch employees.');
       const data = await res.json();
-      setEmployees(data);
+      
+      // Map _id to id for frontend compatibility
+      const mappedData = data.map(emp => ({
+        ...emp,
+        id: emp._id
+      }));
+      
+      setEmployees(mappedData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,9 +52,16 @@ export const EmployeeProvider = ({ children }) => {
         headers: getAuthHeaders(),
         body: JSON.stringify(employee),
       });
-      if (!res.ok) throw new Error('Failed to add employee.');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to add employee.');
+      }
       const newEmployee = await res.json();
-      setEmployees((prev) => [...prev, newEmployee]);
+      
+      // Map _id to id
+      const mappedNewEmployee = { ...newEmployee, id: newEmployee._id };
+      
+      setEmployees((prev) => [...prev, mappedNewEmployee]);
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
@@ -62,10 +76,17 @@ export const EmployeeProvider = ({ children }) => {
         headers: getAuthHeaders(),
         body: JSON.stringify(updatedEmployee),
       });
-      if (!res.ok) throw new Error('Failed to update employee.');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to update employee.');
+      }
       const updated = await res.json();
+      
+      // Map _id to id
+      const mappedUpdated = { ...updated, id: updated._id };
+      
       setEmployees((prev) =>
-        prev.map((emp) => (emp.id === updated.id ? updated : emp))
+        prev.map((emp) => (emp.id === mappedUpdated.id ? mappedUpdated : emp))
       );
       return { success: true };
     } catch (err) {

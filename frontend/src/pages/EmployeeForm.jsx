@@ -23,7 +23,7 @@ const EmployeeForm = () => {
 
   useEffect(() => {
     if (isEditing) {
-      const employeeToEdit = employees.find(emp => emp.id === parseInt(id));
+      const employeeToEdit = employees.find(emp => emp.id === id);
       if (employeeToEdit) {
         setFormData(employeeToEdit);
       }
