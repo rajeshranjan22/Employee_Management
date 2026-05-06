@@ -1,13 +1,15 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback } from "react";
 
 export const EmployeeContext = createContext();
 
-const API_BASE = 'http://localhost:5000/api/employees';
+const API_BASE = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/employees` 
+  : "http://localhost:5000/api/employees";
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 };
@@ -16,23 +18,23 @@ export const EmployeeProvider = ({ children }) => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // ── Fetch all employees from backend ─────────────────────────────────────────
+  // ── Fetch all employees from backend
   const fetchEmployees = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const res = await fetch(API_BASE, { headers: getAuthHeaders() });
-      if (!res.ok) throw new Error('Failed to fetch employees.');
+      if (!res.ok) throw new Error("Failed to fetch employees.");
       const data = await res.json();
-      
+
       // Map _id to id for frontend compatibility
-      const mappedData = data.map(emp => ({
+      const mappedData = data.map((emp) => ({
         ...emp,
-        id: emp._id
+        id: emp._id,
       }));
-      
+
       setEmployees(mappedData);
     } catch (err) {
       setError(err.message);
@@ -45,23 +47,23 @@ export const EmployeeProvider = ({ children }) => {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  // ── Add employee ──────────────────────────────────────────────────────────────
+  //  Add employee
   const addEmployee = async (employee) => {
     try {
       const res = await fetch(API_BASE, {
-        method: 'POST',
+        method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify(employee),
       });
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to add employee.');
+        throw new Error(errorData.error || "Failed to add employee.");
       }
       const newEmployee = await res.json();
-      
+
       // Map _id to id
       const mappedNewEmployee = { ...newEmployee, id: newEmployee._id };
-      
+
       setEmployees((prev) => [...prev, mappedNewEmployee]);
       return { success: true };
     } catch (err) {
@@ -69,25 +71,25 @@ export const EmployeeProvider = ({ children }) => {
     }
   };
 
-  // ── Update employee ───────────────────────────────────────────────────────────
+  //  Update employee
   const updateEmployee = async (updatedEmployee) => {
     try {
       const res = await fetch(`${API_BASE}/${updatedEmployee.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify(updatedEmployee),
       });
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to update employee.');
+        throw new Error(errorData.error || "Failed to update employee.");
       }
       const updated = await res.json();
-      
+
       // Map _id to id
       const mappedUpdated = { ...updated, id: updated._id };
-      
+
       setEmployees((prev) =>
-        prev.map((emp) => (emp.id === mappedUpdated.id ? mappedUpdated : emp))
+        prev.map((emp) => (emp.id === mappedUpdated.id ? mappedUpdated : emp)),
       );
       return { success: true };
     } catch (err) {
@@ -95,14 +97,14 @@ export const EmployeeProvider = ({ children }) => {
     }
   };
 
-  // ── Delete employee ───────────────────────────────────────────────────────────
+  //  Delete employee
   const deleteEmployee = async (id) => {
     try {
       const res = await fetch(`${API_BASE}/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: getAuthHeaders(),
       });
-      if (!res.ok) throw new Error('Failed to delete employee.');
+      if (!res.ok) throw new Error("Failed to delete employee.");
       setEmployees((prev) => prev.filter((emp) => emp.id !== id));
       return { success: true };
     } catch (err) {
@@ -112,16 +114,16 @@ export const EmployeeProvider = ({ children }) => {
 
   return (
     <EmployeeContext.Provider
-      value={{ 
-        employees, 
-        loading, 
-        error, 
-        addEmployee, 
-        updateEmployee, 
-        deleteEmployee, 
+      value={{
+        employees,
+        loading,
+        error,
+        addEmployee,
+        updateEmployee,
+        deleteEmployee,
         fetchEmployees,
         searchTerm,
-        setSearchTerm
+        setSearchTerm,
       }}
     >
       {children}

@@ -1,37 +1,47 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { EmployeeContext } from '../context/EmployeeContext';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Alert } from '@mui/material';
-import { TextField, Button, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { useState, useContext, useEffect } from "react";
+import { EmployeeContext } from "../context/EmployeeContext";
+import { useNavigate, useParams } from "react-router-dom";
+import { Alert } from "@mui/material";
+import {
+  TextField,
+  Button,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
 
 const EmployeeForm = () => {
-  const { employees, addEmployee, updateEmployee } = useContext(EmployeeContext);
+  const { employees, addEmployee, updateEmployee } =
+    useContext(EmployeeContext);
   const navigate = useNavigate();
   const { id } = useParams();
-  
+
   const isEditing = Boolean(id);
   const [submitError, setSubmitError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: '',
-    department: '',
-    role: '',
-    email: '',
-    phone: '',
-    salary: '',
-    joiningDate: new Date().toISOString().split('T')[0],
-    avatar: '',
-    status: 'Active'
+    name: "",
+    department: "",
+    role: "",
+    email: "",
+    phone: "",
+    salary: "",
+    joiningDate: new Date().toISOString().split("T")[0],
+    avatar: "",
+    status: "Active",
   });
 
   useEffect(() => {
     if (isEditing) {
-      const employeeToEdit = employees.find(emp => emp.id === id);
+      const employeeToEdit = employees.find((emp) => emp.id === id);
       if (employeeToEdit) {
         setFormData({
           ...employeeToEdit,
-          joiningDate: employeeToEdit.joiningDate ? new Date(employeeToEdit.joiningDate).toISOString().split('T')[0] : ''
+          joiningDate: employeeToEdit.joiningDate
+            ? new Date(employeeToEdit.joiningDate).toISOString().split("T")[0]
+            : "",
         });
       }
     }
@@ -39,7 +49,7 @@ const EmployeeForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -51,34 +61,40 @@ const EmployeeForm = () => {
       : await addEmployee(formData);
     setSubmitting(false);
     if (result && result.success === false) {
-      setSubmitError(result.error || 'Operation failed. Please try again.');
+      setSubmitError(result.error || "Operation failed. Please try again.");
       return;
     }
-    navigate('/employees');
+    navigate("/employees");
   };
 
   const inputStyles = {
-    marginBottom: '1.5rem',
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': { borderColor: 'var(--border-color)' },
-      '&:hover fieldset': { borderColor: 'var(--text-muted)' },
-      '&.Mui-focused fieldset': { borderColor: 'var(--accent-color)' },
+    marginBottom: "1.5rem",
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": { borderColor: "var(--border-color)" },
+      "&:hover fieldset": { borderColor: "var(--text-muted)" },
+      "&.Mui-focused fieldset": { borderColor: "var(--accent-color)" },
     },
-    '& .MuiInputLabel-root': { color: 'var(--text-muted)' },
-    '& .MuiInputLabel-root.Mui-focused': { color: 'var(--accent-color)' },
-    '& .MuiInputBase-input': { color: 'var(--text-main)' },
+    "& .MuiInputLabel-root": { color: "var(--text-muted)" },
+    "& .MuiInputLabel-root.Mui-focused": { color: "var(--accent-color)" },
+    "& .MuiInputBase-input": { color: "var(--text-main)" },
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ maxWidth: "600px", margin: "0 auto" }}>
       {submitError && (
-        <Alert severity="error" style={{ marginBottom: '1rem' }}>{submitError}</Alert>
+        <Alert severity="error" style={{ marginBottom: "1rem" }}>
+          {submitError}
+        </Alert>
       )}
-      <h1 style={{ marginBottom: '2rem', fontSize: '2rem', fontWeight: '600' }}>
-        {isEditing ? 'Edit Employee' : 'Add New Employee'}
+      <h1 style={{ marginBottom: "2rem", fontSize: "2rem", fontWeight: "600" }}>
+        {isEditing ? "Edit Employee" : "Add New Employee"}
       </h1>
-      
-      <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: '2.5rem' }}>
+
+      <form
+        onSubmit={handleSubmit}
+        className="glass-panel"
+        style={{ padding: "2.5rem" }}
+      >
         <TextField
           fullWidth
           label="Full Name"
@@ -88,7 +104,7 @@ const EmployeeForm = () => {
           required
           sx={inputStyles}
         />
-        
+
         <TextField
           fullWidth
           label="Email Address"
@@ -109,7 +125,7 @@ const EmployeeForm = () => {
           sx={inputStyles}
         />
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: "flex", gap: "1rem" }}>
           <TextField
             fullWidth
             label="Department"
@@ -130,7 +146,7 @@ const EmployeeForm = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: "flex", gap: "1rem" }}>
           <TextField
             fullWidth
             label="Salary"
@@ -171,11 +187,17 @@ const EmployeeForm = () => {
             label="Status"
             onChange={handleChange}
             sx={{
-              color: 'var(--text-main)',
-              '.MuiOutlinedInput-notchedOutline': { borderColor: 'var(--border-color)' },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--accent-color)' },
-              '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--text-muted)' },
-              '.MuiSvgIcon-root ': { fill: 'var(--text-muted)' }
+              color: "var(--text-main)",
+              ".MuiOutlinedInput-notchedOutline": {
+                borderColor: "var(--border-color)",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "var(--accent-color)",
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "var(--text-muted)",
+              },
+              ".MuiSvgIcon-root ": { fill: "var(--text-muted)" },
             }}
           >
             <MenuItem value="Active">Active</MenuItem>
@@ -184,32 +206,36 @@ const EmployeeForm = () => {
           </Select>
         </FormControl>
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-          <Button 
-            type="submit" 
-            variant="contained" 
+        <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+          <Button
+            type="submit"
+            variant="contained"
             fullWidth
             disabled={submitting}
-            style={{ 
-              background: 'var(--accent-color)', 
-              color: '#fff', 
-              padding: '0.8rem',
-              fontWeight: '600',
-              fontSize: '1rem'
+            style={{
+              background: "var(--accent-color)",
+              color: "#fff",
+              padding: "0.8rem",
+              fontWeight: "600",
+              fontSize: "1rem",
             }}
             className="hover-scale"
           >
-            {submitting ? 'Saving...' : (isEditing ? 'Update Employee' : 'Save Employee')}
+            {submitting
+              ? "Saving..."
+              : isEditing
+                ? "Update Employee"
+                : "Save Employee"}
           </Button>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             fullWidth
-            onClick={() => navigate('/employees')}
-            style={{ 
-              borderColor: 'var(--border-color)', 
-              color: 'var(--text-main)',
-              padding: '0.8rem',
-              fontWeight: '600'
+            onClick={() => navigate("/employees")}
+            style={{
+              borderColor: "var(--border-color)",
+              color: "var(--text-main)",
+              padding: "0.8rem",
+              fontWeight: "600",
             }}
           >
             Cancel
