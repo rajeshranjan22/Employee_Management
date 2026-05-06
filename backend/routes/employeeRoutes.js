@@ -8,24 +8,25 @@ const {
   deleteEmployee,
 } = require('../controllers/employeeController');
 const { authenticateToken } = require('../middleware/authMiddleware');
-const { authorize } = require('../middleware/roleMiddleware');
+const { requirePermission } = require('../middleware/permissionMiddleware');
+const { logActivity } = require('../middleware/activityMiddleware');
 
 // All employee routes are protected — require valid JWT
 router.use(authenticateToken);
 
 // GET    /api/employees
-router.get('/', getAllEmployees);
+router.get('/', requirePermission('VIEW_EMPLOYEES'), getAllEmployees);
 
 // GET    /api/employees/:id
-router.get('/:id', getEmployeeById);
+router.get('/:id', requirePermission('VIEW_EMPLOYEES'), getEmployeeById);
 
 // POST   /api/employees
-router.post('/', createEmployee);
+router.post('/', requirePermission('CREATE_EMPLOYEE'), logActivity('CREATE_EMPLOYEE'), createEmployee);
 
 // PUT    /api/employees/:id
-router.put('/:id', updateEmployee);
+router.put('/:id', requirePermission('UPDATE_EMPLOYEE'), logActivity('UPDATE_EMPLOYEE'), updateEmployee);
 
-// DELETE /api/employees/:id — Admin only
-router.delete('/:id', authorize('admin'), deleteEmployee);
+// DELETE /api/employees/:id
+router.delete('/:id', requirePermission('DELETE_EMPLOYEE'), logActivity('DELETE_EMPLOYEE'), deleteEmployee);
 
 module.exports = router;

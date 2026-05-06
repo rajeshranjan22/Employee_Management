@@ -7,6 +7,8 @@ const connectDB = require("./db/connection");
 const { PORT } = require("./config/config");
 const authRoutes = require("./routes/authRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
+const roleRoutes = require("./routes/roleRoutes");
+const activityRoutes = require("./routes/activityRoutes");
 const { errorHandler } = require("./middleware/errorHandler");
 
 // Connect to Database
@@ -26,6 +28,8 @@ app.use(express.json());
 //  Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/roles", roleRoutes);
+app.use("/api/activities", activityRoutes);
 
 //  Health Check
 app.get("/api/health", (req, res) => {

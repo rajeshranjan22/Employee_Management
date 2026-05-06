@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const EmployeeList = () => {
   const { employees, loading, error, deleteEmployee, searchTerm } =
     useContext(EmployeeContext);
-  const { user } = useContext(AuthContext);
+  const { user, hasPermission } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleEdit = (id) => {
@@ -130,33 +130,40 @@ const EmployeeList = () => {
       field: "actions",
       headerName: "Actions",
       width: 120,
-      renderCell: (params) => (
-        <div
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            alignItems: "center",
-            height: "100%",
-          }}
-        >
-          <IconButton
-            size="small"
-            style={{ color: "var(--accent-color)" }}
-            onClick={() => handleEdit(params.row.id)}
+      renderCell: (params) => {
+        const canEdit = hasPermission("UPDATE_EMPLOYEE");
+        const canDelete = hasPermission("DELETE_EMPLOYEE");
+
+        return (
+          <div
+            style={{
+              display: "flex",
+              gap: "0.5rem",
+              alignItems: "center",
+              height: "100%",
+            }}
           >
-            <EditIcon fontSize="small" />
-          </IconButton>
-          {user?.role === "admin" && (
-            <IconButton
-              size="small"
-              style={{ color: "var(--danger-color)" }}
-              onClick={() => handleDelete(params.row.id)}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          )}
-        </div>
-      ),
+            {canEdit && (
+              <IconButton
+                size="small"
+                style={{ color: "var(--accent-color)" }}
+                onClick={() => handleEdit(params.row.id)}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
+            {canDelete && (
+              <IconButton
+                size="small"
+                style={{ color: "var(--danger-color)" }}
+                onClick={() => handleDelete(params.row.id)}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            )}
+          </div>
+        );
+      },
     },
   ];
 

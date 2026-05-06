@@ -1,13 +1,22 @@
+import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import SecurityIcon from "@mui/icons-material/Security";
+import HistoryIcon from "@mui/icons-material/History";
+import HasPermission from "./HasPermission";
+import { AuthContext } from "../context/AuthContext";
 
 const Sidebar = () => {
+  const { hasPermission } = useContext(AuthContext);
+
   const menuItems = [
     { name: "Dashboard", path: "/", icon: <DashboardIcon /> },
-    { name: "Employee List", path: "/employees", icon: <PeopleIcon /> },
-    { name: "Add Employee", path: "/add-employee", icon: <PersonAddIcon /> },
+    { name: "Employee List", path: "/employees", icon: <PeopleIcon />, permission: 'VIEW_EMPLOYEES' },
+    { name: "Add Employee", path: "/add-employee", icon: <PersonAddIcon />, permission: 'CREATE_EMPLOYEE' },
+    { name: "Role Management", path: "/roles", icon: <SecurityIcon />, permission: 'MANAGE_ROLES' },
+    { name: "Activity Logs", path: "/activities", icon: <HistoryIcon />, permission: 'VIEW_ACTIVITY_LOGS' },
   ];
 
   return (
@@ -46,31 +55,34 @@ const Sidebar = () => {
           gap: "0.5rem",
         }}
       >
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.path}
-            style={({ isActive }) => ({
-              display: "flex",
-              alignItems: "center",
-              padding: "1rem",
-              borderRadius: "12px",
-              color: isActive ? "var(--text-main)" : "var(--text-muted)",
-              background: isActive ? "var(--accent-color)" : "transparent",
-              transition: "all 0.3s ease",
-              gap: "12px",
-              textDecoration: "none",
-              fontWeight: isActive ? "600" : "400",
-              boxShadow: isActive
-                ? "0 4px 15px rgba(59, 130, 246, 0.4)"
-                : "none",
-            })}
-            className="hover-scale"
-          >
-            {item.icon}
-            {item.name}
-          </NavLink>
-        ))}
+        {menuItems.map((item) => {
+          if (item.permission && !hasPermission(item.permission)) return null;
+          return (
+            <NavLink
+              key={item.name}
+              to={item.path}
+              style={({ isActive }) => ({
+                display: "flex",
+                alignItems: "center",
+                padding: "1rem",
+                borderRadius: "12px",
+                color: isActive ? "var(--text-main)" : "var(--text-muted)",
+                background: isActive ? "var(--accent-color)" : "transparent",
+                transition: "all 0.3s ease",
+                gap: "12px",
+                textDecoration: "none",
+                fontWeight: isActive ? "600" : "400",
+                boxShadow: isActive
+                  ? "0 4px 15px rgba(59, 130, 246, 0.4)"
+                  : "none",
+              })}
+              className="hover-scale"
+            >
+              {item.icon}
+              {item.name}
+            </NavLink>
+          );
+        })}
       </div>
     </div>
   );

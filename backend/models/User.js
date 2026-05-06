@@ -26,9 +26,28 @@ const userSchema = new mongoose.Schema(
       select: false, // Never return password in queries by default
     },
     role: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Role',
+      required: true,
+    },
+    department: {
       type: String,
-      enum: ['admin', 'manager', 'employee'],
-      default: 'employee',
+      trim: true,
+      enum: {
+        values: [
+          "Engineering",
+          "Design",
+          "HR",
+          "Marketing",
+          "Finance",
+          "Operations",
+          "Sales",
+          "Other",
+          "All", 
+        ],
+        message: "{VALUE} is not a valid department",
+      },
+      default: "All",
     },
     isActive: {
       type: Boolean,
