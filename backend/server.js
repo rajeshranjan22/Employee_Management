@@ -9,6 +9,8 @@ const authRoutes = require("./routes/authRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const activityRoutes = require("./routes/activityRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
+const shiftRoutes = require("./routes/shiftRoutes");
 const { errorHandler } = require("./middleware/errorHandler");
 
 // Connect to Database
@@ -30,6 +32,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/shifts", shiftRoutes);
 
 //  Health Check
 app.get("/api/health", (req, res) => {

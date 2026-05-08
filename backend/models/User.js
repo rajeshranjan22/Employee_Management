@@ -53,6 +53,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    shift: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shift',
+    },
+    lastClockIn: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

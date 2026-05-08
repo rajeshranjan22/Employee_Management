@@ -2,12 +2,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material";
 import { EmployeeProvider } from "./context/EmployeeContext";
 import { AuthProvider } from "./context/AuthContext";
+import { AttendanceProvider } from "./context/AttendanceContext";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import EmployeeList from "./pages/EmployeeList";
 import EmployeeForm from "./pages/EmployeeForm";
 import RoleManagement from "./pages/RoleManagement";
 import ActivityLogs from "./pages/ActivityLogs";
+import AttendanceHistory from "./pages/AttendanceHistory";
+import ShiftManagement from "./pages/ShiftManagement";
+import AdminAttendance from "./pages/AdminAttendance";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -34,8 +38,9 @@ const App = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <AuthProvider>
-        <EmployeeProvider>
-          <BrowserRouter>
+        <AttendanceProvider>
+          <EmployeeProvider>
+            <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -64,6 +69,21 @@ const App = () => {
                     <EmployeeForm />
                   </HasPermission>
                 } />
+                <Route path="attendance" element={
+                  <HasPermission required="VIEW_ATTENDANCE" fallback={<div>Access Denied</div>}>
+                    <AttendanceHistory />
+                  </HasPermission>
+                } />
+                <Route path="admin/attendance" element={
+                  <HasPermission required="MANAGE_ATTENDANCE" fallback={<div>Access Denied</div>}>
+                    <AdminAttendance />
+                  </HasPermission>
+                } />
+                <Route path="shifts" element={
+                  <HasPermission required="MANAGE_SHIFTS" fallback={<div>Access Denied</div>}>
+                    <ShiftManagement />
+                  </HasPermission>
+                } />
                 <Route path="roles" element={
                   <HasPermission required="MANAGE_ROLES" fallback={<div>Access Denied</div>}>
                     <RoleManagement />
@@ -78,6 +98,7 @@ const App = () => {
             </Routes>
           </BrowserRouter>
         </EmployeeProvider>
+        </AttendanceProvider>
       </AuthProvider>
     </ThemeProvider>
   );

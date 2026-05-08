@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import PeopleAlt from "@mui/icons-material/PeopleAlt";
 import WorkOutlinedIcon from "@mui/icons-material/WorkOutlined";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import AttendanceWidget from "../components/AttendanceWidget";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -88,6 +89,8 @@ const Dashboard = () => {
       <h1 style={{ marginBottom: "2rem", fontSize: "2rem", fontWeight: "600" }}>
         Overview
       </h1>
+
+      <AttendanceWidget />
 
       <div
         style={{

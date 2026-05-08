@@ -5,6 +5,8 @@ import PeopleIcon from "@mui/icons-material/People";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SecurityIcon from "@mui/icons-material/Security";
 import HistoryIcon from "@mui/icons-material/History";
+import TimerIcon from "@mui/icons-material/Timer";
+import WorkOutlinedIcon from "@mui/icons-material/WorkOutlined";
 import HasPermission from "./HasPermission";
 import { AuthContext } from "../context/AuthContext";
 
@@ -15,6 +17,9 @@ const Sidebar = () => {
     { name: "Dashboard", path: "/", icon: <DashboardIcon /> },
     { name: "Employee List", path: "/employees", icon: <PeopleIcon />, permission: 'VIEW_EMPLOYEES' },
     { name: "Add Employee", path: "/add-employee", icon: <PersonAddIcon />, permission: 'CREATE_EMPLOYEE' },
+    { name: "Attendance", path: "/attendance", icon: <TimerIcon />, permission: 'VIEW_ATTENDANCE' },
+    { name: "Employee Attendance", path: "/admin/attendance", icon: <HistoryIcon />, permission: 'MANAGE_ATTENDANCE' },
+    { name: "Shift Management", path: "/shifts", icon: <WorkOutlinedIcon />, permission: 'MANAGE_SHIFTS' },
     { name: "Role Management", path: "/roles", icon: <SecurityIcon />, permission: 'MANAGE_ROLES' },
     { name: "Activity Logs", path: "/activities", icon: <HistoryIcon />, permission: 'VIEW_ACTIVITY_LOGS' },
   ];

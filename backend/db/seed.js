@@ -10,6 +10,7 @@ const connectDB = require("./connection");
 const Employee = require("../models/Employee");
 const User = require("../models/User");
 const Role = require("../models/Role");
+const Shift = require("../models/Shift");
 
 const sampleEmployees = [
   {
@@ -69,13 +70,19 @@ const sampleEmployees = [
   },
 ];
 
+const defaultShifts = [
+  { name: 'Morning Shift', startTime: '09:00', endTime: '18:00', gracePeriod: 15 },
+  { name: 'Evening Shift', startTime: '14:00', endTime: '22:00', gracePeriod: 15 },
+  { name: 'Night Shift', startTime: '22:00', endTime: '06:00', gracePeriod: 15 },
+];
+
 const defaultRoles = [
-  { name: 'Super Admin', permissions: ['VIEW_EMPLOYEES', 'CREATE_EMPLOYEE', 'UPDATE_EMPLOYEE', 'DELETE_EMPLOYEE', 'MANAGE_ROLES', 'VIEW_ACTIVITY_LOGS'], isCustom: false },
-  { name: 'HR Manager', permissions: ['VIEW_EMPLOYEES', 'CREATE_EMPLOYEE', 'UPDATE_EMPLOYEE', 'DELETE_EMPLOYEE', 'VIEW_ACTIVITY_LOGS'], isCustom: false },
-  { name: 'Team Lead', permissions: ['VIEW_EMPLOYEES', 'UPDATE_EMPLOYEE'], isCustom: false },
-  { name: 'Finance Manager', permissions: ['VIEW_EMPLOYEES'], isCustom: false },
+  { name: 'Super Admin', permissions: ['VIEW_EMPLOYEES', 'CREATE_EMPLOYEE', 'UPDATE_EMPLOYEE', 'DELETE_EMPLOYEE', 'MANAGE_ROLES', 'VIEW_ACTIVITY_LOGS', 'MANAGE_SHIFTS', 'VIEW_ATTENDANCE', 'MANAGE_ATTENDANCE'], isCustom: false },
+  { name: 'HR Manager', permissions: ['VIEW_EMPLOYEES', 'CREATE_EMPLOYEE', 'UPDATE_EMPLOYEE', 'DELETE_EMPLOYEE', 'VIEW_ACTIVITY_LOGS', 'VIEW_ATTENDANCE', 'MANAGE_ATTENDANCE'], isCustom: false },
+  { name: 'Team Lead', permissions: ['VIEW_EMPLOYEES', 'UPDATE_EMPLOYEE', 'VIEW_ATTENDANCE'], isCustom: false },
+  { name: 'Finance Manager', permissions: ['VIEW_EMPLOYEES', 'VIEW_ATTENDANCE'], isCustom: false },
   { name: 'Recruiter', permissions: ['VIEW_EMPLOYEES', 'CREATE_EMPLOYEE'], isCustom: false },
-  { name: 'Employee', permissions: ['VIEW_EMPLOYEES'], isCustom: false },
+  { name: 'Employee', permissions: ['VIEW_EMPLOYEES', 'VIEW_ATTENDANCE'], isCustom: false },
 ];
 
 const seedDB = async () => {
@@ -88,7 +95,12 @@ const seedDB = async () => {
     await Employee.deleteMany({});
     await User.deleteMany({});
     await Role.deleteMany({});
-    console.log(" Cleared existing employees, users, and roles.");
+    await Shift.deleteMany({});
+    console.log(" Cleared existing employees, users, roles, and shifts.");
+
+    // Insert Shifts
+    const insertedShifts = await Shift.insertMany(defaultShifts);
+    console.log(`Inserted ${insertedShifts.length} default shifts.`);
 
     // Insert Roles
     const insertedRoles = await Role.insertMany(defaultRoles);
@@ -102,7 +114,8 @@ const seedDB = async () => {
       email: "admin@example.com",
       password: "admin123", // Will be hashed by pre-save hook
       role: superAdminRole._id,
-      department: "All"
+      department: "All",
+      shift: insertedShifts[0]._id
     };
 
     await User.create(sampleAdmin);
