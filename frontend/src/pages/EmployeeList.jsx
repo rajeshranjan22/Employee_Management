@@ -1,16 +1,29 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { EmployeeContext } from "../context/EmployeeContext";
 import { AuthContext } from "../context/AuthContext";
 import { DataGrid } from "@mui/x-data-grid";
-import { IconButton, CircularProgress, Alert, Avatar } from "@mui/material";
+import { 
+  IconButton, 
+  CircularProgress, 
+  Alert, 
+  Avatar, 
+  Box, 
+  Typography, 
+  Chip, 
+  Tooltip,
+  Paper,
+  Button,
+  Stack
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 
 const EmployeeList = () => {
   const { employees, loading, error, deleteEmployee, searchTerm } =
     useContext(EmployeeContext);
-  const { user, hasPermission } = useContext(AuthContext);
+  const { hasPermission } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleEdit = (id) => {
@@ -18,7 +31,9 @@ const EmployeeList = () => {
   };
 
   const handleDelete = async (id) => {
-    await deleteEmployee(id);
+    if (window.confirm("Are you sure you want to remove this employee?")) {
+      await deleteEmployee(id);
+    }
   };
 
   const filteredEmployees = employees.filter(
@@ -30,99 +45,99 @@ const EmployeeList = () => {
 
   const columns = [
     {
-      field: "avatar",
-      headerName: "",
-      width: 60,
-      align: "center",
-      headerAlign: "center",
+      field: "user",
+      headerName: "Employee",
+      width: 250,
+      flex: 1.5,
       renderCell: (params) => (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-          }}
-        >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, height: "100%" }}>
           <Avatar
             src={params.row.avatar}
             alt={params.row.name}
-            style={{
-              width: 35,
-              height: 35,
-              background: "var(--accent-color)",
-              fontSize: "0.9rem",
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: "var(--accent-color)",
+              fontSize: "1rem",
+              fontWeight: "600",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
             }}
           >
             {params.row.name?.charAt(0) || "?"}
           </Avatar>
-        </div>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: "700", color: "var(--text-main)", lineHeight: 1.2 }}>
+              {params.row.name}
+            </Typography>
+            <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
+              {params.row.email}
+            </Typography>
+          </Box>
+        </Box>
       ),
     },
-    { field: "name", headerName: "Name", width: 180, flex: 1 },
-    { field: "department", headerName: "Department", width: 140 },
-    { field: "role", headerName: "Role", width: 160, flex: 1 },
+    { 
+      field: "department", 
+      headerName: "Department", 
+      width: 150,
+      renderCell: (params) => (
+        <Chip 
+          label={params.value} 
+          size="small" 
+          variant="outlined" 
+          sx={{ borderColor: "rgba(255,255,255,0.1)", color: "var(--text-muted)" }} 
+        />
+      )
+    },
+    { 
+      field: "role", 
+      headerName: "Designation", 
+      width: 180, 
+      flex: 1,
+      renderCell: (params) => (
+        <Typography variant="body2" sx={{ color: "var(--text-main)", fontWeight: "500" }}>
+          {params.value}
+        </Typography>
+      )
+    },
     {
       field: "salary",
       headerName: "Salary",
-      width: 120,
-      valueFormatter: (value) => (value ? `$${value.toLocaleString()}` : "-"),
-    },
-    {
-      field: "joiningDate",
-      headerName: "Joined",
       width: 130,
-      valueFormatter: (value) =>
-        value ? new Date(value).toLocaleDateString() : "-",
+      renderCell: (params) => (
+        <Typography variant="body2" sx={{ fontWeight: "600", color: "var(--success-color)" }}>
+          {params.value ? `$${params.value.toLocaleString()}` : "-"}
+        </Typography>
+      )
     },
     {
       field: "status",
       headerName: "Status",
-      width: 120,
+      width: 140,
+      align: "center",
+      headerAlign: "center",
       renderCell: (params) => {
         let color =
           params.value === "Active"
-            ? "#10b981"
+            ? "success"
             : params.value === "On Leave"
-              ? "#f59e0b"
-              : "#ef4444";
+              ? "warning"
+              : "error";
         return (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
+          <Chip
+            label={params.value}
+            color={color}
+            size="small"
+            variant="soft"
+            sx={{ 
+              fontWeight: "700", 
+              fontSize: "0.7rem", 
+              px: 0.5,
+              background: color === 'success' ? 'rgba(16, 185, 129, 0.15)' : color === 'warning' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              color: color === 'success' ? '#10b981' : color === 'warning' ? '#f59e0b' : '#ef4444',
+              border: "1px solid transparent"
             }}
-          >
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                background: `${color}15`, // Very light transparent background
-                color: color,
-                padding: "4px 10px",
-                borderRadius: "6px",
-                fontSize: "0.8rem",
-                fontWeight: "700",
-                border: `1px solid ${color}30`, // Semi-transparent border
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              <span
-                style={{
-                  width: "6px",
-                  height: "6px",
-                  borderRadius: "50%",
-                  backgroundColor: color,
-                  boxShadow: `0 0 8px ${color}`, // Soft glow effect
-                }}
-              ></span>
-              {params.value}
-            </span>
-          </div>
+          />
         );
       },
     },
@@ -130,38 +145,38 @@ const EmployeeList = () => {
       field: "actions",
       headerName: "Actions",
       width: 120,
+      sortable: false,
+      align: "right",
+      headerAlign: "right",
       renderCell: (params) => {
         const canEdit = hasPermission("UPDATE_EMPLOYEE");
         const canDelete = hasPermission("DELETE_EMPLOYEE");
 
         return (
-          <div
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              alignItems: "center",
-              height: "100%",
-            }}
-          >
+          <Stack direction="row" spacing={1} sx={{ justifyContent: "flex-end", alignItems: "center", height: "100%" }}>
             {canEdit && (
-              <IconButton
-                size="small"
-                style={{ color: "var(--accent-color)" }}
-                onClick={() => handleEdit(params.row.id)}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
+              <Tooltip title="Edit Employee">
+                <IconButton
+                  size="small"
+                  sx={{ color: "var(--accent-color)", "&:hover": { background: "rgba(59, 130, 246, 0.1)" } }}
+                  onClick={() => handleEdit(params.row.id)}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             )}
             {canDelete && (
-              <IconButton
-                size="small"
-                style={{ color: "var(--danger-color)" }}
-                onClick={() => handleDelete(params.row.id)}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
+              <Tooltip title="Delete Employee">
+                <IconButton
+                  size="small"
+                  sx={{ color: "var(--danger-color)", "&:hover": { background: "rgba(239, 68, 68, 0.1)" } }}
+                  onClick={() => handleDelete(params.row.id)}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             )}
-          </div>
+          </Stack>
         );
       },
     },
@@ -169,42 +184,68 @@ const EmployeeList = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "60vh",
-        }}
-      >
-        <CircularProgress style={{ color: "var(--accent-color)" }} size={60} />
-      </div>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh", flexDirection: "column", gap: 2 }}>
+        <CircularProgress sx={{ color: "var(--accent-color)" }} size={50} />
+        <Typography color="var(--text-muted)">Loading directory...</Typography>
+      </Box>
     );
   }
 
   return (
-    <div style={{ height: "calc(100vh - 150px)", width: "100%" }}>
-      <h1 style={{ marginBottom: "2rem", fontSize: "2rem", fontWeight: "600" }}>
-        Employee Directory
-      </h1>
+    <Box sx={{ height: "calc(100vh - 180px)", width: "100%" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: "700", mb: 0.5 }}>
+            Employee Directory
+          </Typography>
+          <Typography variant="body2" sx={{ color: "var(--text-muted)" }}>
+            Manage and view all employee information in one place.
+          </Typography>
+        </Box>
+        {hasPermission("CREATE_EMPLOYEE") && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate("/add-employee")}
+            sx={{ 
+              background: "var(--accent-color)",
+              padding: "10px 24px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 15px rgba(59, 130, 246, 0.3)",
+              "&:hover": { background: "var(--accent-hover)" }
+            }}
+          >
+            Add Employee
+          </Button>
+        )}
+      </Box>
+
       {error && (
-        <Alert severity="error" style={{ marginBottom: "1rem" }}>
+        <Alert severity="error" sx={{ mb: 3, borderRadius: "10px" }}>
           {error}
         </Alert>
       )}
-      <div style={{ height: "100%", width: "100%" }} className="glass-panel">
+
+      <Paper className="glass-panel" sx={{ height: "100%", width: "100%", overflow: "hidden" }}>
         <DataGrid
           rows={filteredEmployees}
           columns={columns}
-          pageSizeOptions={[5, 10, 20]}
+          pageSizeOptions={[10, 20, 50]}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
           }}
           disableRowSelectionOnClick
-          sx={{ border: 0 }}
+          sx={{ 
+            border: 0,
+            "& .MuiDataGrid-cell:focus": { outline: "none" },
+            "& .MuiDataGrid-columnHeader:focus": { outline: "none" },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.03)",
+            }
+          }}
         />
-      </div>
-    </div>
+      </Paper>
+    </Box>
   );
 };
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 // ── User Schema ────────────────────────────────────────────────────────────────
 const userSchema = new mongoose.Schema(
@@ -21,7 +22,6 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
       select: false, // Never return password in queries by default
     },
@@ -35,19 +35,12 @@ const userSchema = new mongoose.Schema(
       trim: true,
       enum: {
         values: [
-          "Engineering",
-          "Design",
-          "HR",
-          "Marketing",
-          "Finance",
-          "Operations",
-          "Sales",
-          "Other",
-          "All", 
+          'Engineering', 'Design', 'HR', 'Marketing',
+          'Finance', 'Operations', 'Sales', 'Other', 'All',
         ],
-        message: "{VALUE} is not a valid department",
+        message: '{VALUE} is not a valid department',
       },
-      default: "All",
+      default: 'All',
     },
     isActive: {
       type: Boolean,
@@ -60,6 +53,70 @@ const userSchema = new mongoose.Schema(
     lastClockIn: {
       type: Date,
     },
+
+    // ── Google OAuth ───────────────────────────────────────────────────────────
+    googleId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+
+    // ── Email Verification ─────────────────────────────────────────────────────
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      select: false,
+    },
+    verificationTokenExpire: {
+      type: Date,
+      select: false,
+    },
+
+    // ── Password Reset ─────────────────────────────────────────────────────────
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpire: {
+      type: Date,
+      select: false,
+    },
+
+    // ── Refresh Tokens (hashed, one per device/session) ────────────────────────
+    refreshTokens: {
+      type: [
+        {
+          tokenHash: { type: String, required: true },
+          createdAt:  { type: Date, default: Date.now },
+          userAgent:  { type: String, default: '' },
+          ip:         { type: String, default: '' },
+        },
+      ],
+      default: [],
+      select: false,
+    },
+
+    // ── Active Sessions ────────────────────────────────────────────────────────
+    activeSessions: {
+      type: [
+        {
+          sessionId:  { type: String, required: true },
+          device:     { type: String, default: 'Unknown' },
+          ip:         { type: String, default: '' },
+          createdAt:  { type: Date, default: Date.now },
+          lastActive: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+
+    // ── Audit ──────────────────────────────────────────────────────────────────
+    lastLogin: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -69,16 +126,30 @@ const userSchema = new mongoose.Schema(
 
 // ── Pre-save Hook: Hash password before saving ─────────────────────────────────
 userSchema.pre('save', async function () {
-  // Only hash if password was modified (or is new)
-  if (!this.isModified('password')) return;
-
-  const salt = await bcrypt.genSalt(10);
+  if (!this.isModified('password') || !this.password) return;
+  const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// ── Instance Method: Compare password ─────────────────────────────────────────
+// ── Instance Method: Compare plain password against hash ──────────────────────
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
+};
+
+// ── Instance Method: Generate & store hashed email verification token ──────────
+userSchema.methods.generateVerificationToken = function () {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  this.verificationToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+  this.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+  return rawToken; // send the raw token in the email URL
+};
+
+// ── Instance Method: Generate & store hashed password-reset token ──────────────
+userSchema.methods.generatePasswordResetToken = function () {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  this.resetPasswordToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+  this.resetPasswordExpire = Date.now() + 60 * 60 * 1000; // 1 hour
+  return rawToken; // send the raw token in the email URL
 };
 
 // ── Export Model ───────────────────────────────────────────────────────────────

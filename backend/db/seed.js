@@ -115,7 +115,8 @@ const seedDB = async () => {
       password: "admin123", // Will be hashed by pre-save hook
       role: superAdminRole._id,
       department: "All",
-      shift: insertedShifts[0]._id
+      shift: insertedShifts[0]._id,
+      emailVerified: true
     };
 
     await User.create(sampleAdmin);

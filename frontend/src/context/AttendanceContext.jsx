@@ -1,9 +1,8 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
+import api from "../api/axios.instance";
 
 export const AttendanceContext = createContext();
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export const AttendanceProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
@@ -15,17 +14,20 @@ export const AttendanceProvider = ({ children }) => {
     if (!user) return;
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/attendance/today`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
-      const data = await res.json();
-      if (res.ok && !data.message) {
+      const { data } = await api.get("/attendance/today");
+      // Backend returns the record or { message: "No record" }
+      if (data && !data.message) {
         setTodayAttendance(data);
       } else {
         setTodayAttendance(null);
       }
     } catch (err) {
-      console.error("Failed to fetch today status", err);
+      // 404 means no record yet today — not an error
+      if (err.response?.status === 404) {
+        setTodayAttendance(null);
+      } else {
+        console.error("Failed to fetch today status", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -38,21 +40,14 @@ export const AttendanceProvider = ({ children }) => {
   const clockIn = async (location = null) => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/attendance/clock-in`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem("token")}` 
-        },
-        body: JSON.stringify({ location })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Clock-in failed');
+      setError(null);
+      const { data } = await api.post("/attendance/clock-in", { location });
       setTodayAttendance(data);
       return { success: true };
     } catch (err) {
-      setError(err.message);
-      return { success: false, error: err.message };
+      const msg = err.response?.data?.error || err.message || "Clock-in failed";
+      setError(msg);
+      return { success: false, error: msg };
     } finally {
       setLoading(false);
     }
@@ -61,30 +56,27 @@ export const AttendanceProvider = ({ children }) => {
   const clockOut = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/attendance/clock-out`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Clock-out failed');
+      setError(null);
+      const { data } = await api.post("/attendance/clock-out");
       setTodayAttendance(data);
       return { success: true };
     } catch (err) {
-      setError(err.message);
-      return { success: false, error: err.message };
+      const msg = err.response?.data?.error || err.message || "Clock-out failed";
+      setError(msg);
+      return { success: false, error: msg };
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AttendanceContext.Provider value={{ 
-      todayAttendance, 
-      loading, 
-      error, 
-      clockIn, 
-      clockOut, 
-      fetchTodayStatus 
+    <AttendanceContext.Provider value={{
+      todayAttendance,
+      loading,
+      error,
+      clockIn,
+      clockOut,
+      fetchTodayStatus
     }}>
       {children}
     </AttendanceContext.Provider>
