@@ -6,17 +6,6 @@ Designed with a sleek, glassmorphism UI/UX to deliver a premium user experience 
 
 ---
 
-## 📸 Screenshots
-
-*(Replace the placeholder image paths below with actual screenshot files)*
-
-<div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
-  <img src="https://via.placeholder.com/600x350.png?text=Dashboard+Screenshot" alt="Dashboard View" width="400" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
-  <img src="https://via.placeholder.com/600x350.png?text=Employee+Directory+Screenshot" alt="Employee Directory" width="400" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
-</div>
-
----
-
 ## ✨ Features
 
 - **🔐 Enterprise Authentication**: Advanced JWT system with Access/Refresh token rotation, secure cookie storage, email verification, and password reset flows.
@@ -48,6 +37,16 @@ Designed with a sleek, glassmorphism UI/UX to deliver a premium user experience 
 - Security (Helmet, Express Rate Limit)
 - Email (Nodemailer)
 - OAuth (Passport.js)
+
+---
+
+## 📸 Screenshots
+
+
+<div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+  <img src="https://via.placeholder.com/600x350.png?text=Dashboard+Screenshot" alt="Dashboard View" width="400" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
+  <img src="https://via.placeholder.com/600x350.png?text=Employee+Directory+Screenshot" alt="Employee Directory" width="400" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
+</div>
 
 ---
 
@@ -110,11 +109,4 @@ cd frontend
 npm run dev
 ```
 
----
 
-
-
-## 🛡️ Security Note
-- Passwords are never stored in plain text (hashed via bcrypt).
-- API routes are protected by a JWT middleware.
-- Client-side routes are protected by a `ProtectedRoute` component.
