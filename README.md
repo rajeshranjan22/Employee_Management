@@ -45,7 +45,7 @@ Designed with a sleek, glassmorphism UI/UX to deliver a premium user experience 
 
 <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c5e29244-3da3-4e17-abb6-1f9b53fee7cc" />
-
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b56f3dae-5138-4173-88f3-b7e821cad958" />
 </div>
 
 ---
