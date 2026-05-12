@@ -44,8 +44,8 @@ Designed with a sleek, glassmorphism UI/UX to deliver a premium user experience 
 
 
 <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
-  <img src="https://via.placeholder.com/600x350.png?text=Dashboard+Screenshot" alt="Dashboard View" width="400" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
-  <img src="https://via.placeholder.com/600x350.png?text=Employee+Directory+Screenshot" alt="Employee Directory" width="400" style="border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"/>
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c5e29244-3da3-4e17-abb6-1f9b53fee7cc" />
+
 </div>
 
 ---
