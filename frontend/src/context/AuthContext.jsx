@@ -76,9 +76,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ── REGISTER ────────────────────────────────────────────────────────────────
-  const register = async (name, email, password) => {
+  const register = async (name, email, password, department = 'All') => {
     try {
-      const { data } = await api.post('/auth/register', { name, email, password });
+      const { data } = await api.post('/auth/register', { name, email, password, department });
       return { success: true, message: data.message };
     } catch (err) {
       const errors = err.response?.data?.errors;
@@ -143,6 +143,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // ── VERIFY EMAIL (used by VerifyEmail page on mount) ─────────────────────────
+  const verifyEmail = async (token) => {
+    try {
+      const { data } = await api.get(`/auth/verify-email?token=${encodeURIComponent(token)}`);
+      return { success: true, message: data.message };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.message || 'Verification failed.' };
+    }
+  };
+
+  // ── GOOGLE OAUTH — called by OAuthCallback after backend redirect ─────────────
+  // Sets the access token in memory, fetches the full user profile (role, permissions),
+  // and persists user to localStorage for UX continuity.
+  const loginWithOAuthToken = async (token) => {
+    // Immediately attach the token so /auth/me can be called
+    setAccessToken(token);
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+    const { data } = await api.get('/auth/me');
+    const userData = data.data?.user;
+    if (!userData) throw new Error('Failed to fetch user profile after OAuth login.');
+
+    setUser(userData);
+    localStorage.setItem('ems_user', JSON.stringify(userData));
+  };
+
   // ── PERMISSION CHECK ────────────────────────────────────────────────────────
   const hasPermission = (permission) => {
     if (!user?.role) return false;
@@ -164,6 +190,8 @@ export const AuthProvider = ({ children }) => {
         forgotPassword,
         resetPassword,
         resendVerification,
+        verifyEmail,
+        loginWithOAuthToken,
         hasPermission,
       }}
     >

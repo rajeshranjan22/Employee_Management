@@ -16,6 +16,8 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import VerifyEmail from "./pages/Auth/VerifyEmail";
+import OAuthCallback from "./pages/Auth/OAuthCallback";
 import ProtectedRoute from "./components/ProtectedRoute";
 import HasPermission from "./components/HasPermission";
 import "./styles/index.css";
@@ -71,8 +73,10 @@ const App = () => {
                 {/* Public routes */}
                 <Route path="/login"           element={<Login />} />
                 <Route path="/register"        element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password"  element={<ResetPassword />} />
+                <Route path="/forgot-password"  element={<ForgotPassword />} />
+                <Route path="/reset-password"   element={<ResetPassword />} />
+                <Route path="/verify-email"      element={<VerifyEmail />} />
+                <Route path="/oauth-callback"    element={<OAuthCallback />} />
 
                 {/* Protected layout routes */}
                 <Route

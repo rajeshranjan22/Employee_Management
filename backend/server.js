@@ -55,10 +55,10 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser(COOKIE_SECRET));
 
 // Sanitize MongoDB operators in req.body / req.query (NoSQL injection)
-// app.use(mongoSanitize());
+// app.use(mongoSanitize());   // NoSQL injection protection (disabled due to compatibility issues)
 
 // Sanitize HTML tags in req.body / req.query (XSS)
-// app.use(xss());
+// app.use(xss());             // XSS protection (disabled due to compatibility issues)
 
 // HTTP request logging
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
